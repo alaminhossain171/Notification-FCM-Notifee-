@@ -1,6 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import NavigationService from '../navigation/NavigationService';
-
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import { Platform } from 'react-native';
 export async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -13,6 +14,36 @@ export async function requestUserPermission() {
     }
 }
 
+
+async function onDisplayNotification(data) {
+    // Request permissions (required for iOS)
+
+    if (Platform.OS == 'ios') {
+        await notifee.requestPermission()
+    }
+
+    // Create a channel (required for Android)
+    const channelId = await notifee.createChannel({
+        id: data?.data?.channel_id,
+        name: data?.data?.channel_name,
+        sound: data?.data?.sound_name,
+        importance: AndroidImportance.HIGH,
+    });
+
+    // Display a notification
+    await notifee.displayNotification({
+        title: data?.notification.title,
+        body: data?.notification.body,
+        android: {
+            channelId,
+
+        },
+    });
+    
+}
+
+
+
 async function getFcmToken() {
     try {
         const token = await messaging().getToken();
@@ -24,7 +55,8 @@ async function getFcmToken() {
 
 export async function notificationListner() {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-        console.log('A new FCM message arrived!', remoteMessage);
+        console.log('A new FCM message arrived!', remoteMessage); 
+        onDisplayNotification(remoteMessage)
     });
 
 

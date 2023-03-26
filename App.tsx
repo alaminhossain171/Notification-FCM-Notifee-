@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, PermissionsAndroid, Platform } from 'react-nati
 import React, { useEffect } from 'react'
 import { notificationListner, requestUserPermission } from './src/utils/notificationServices'
 import Routes from './src/navigation/Routes'
-
+import notifee, { EventType } from '@notifee/react-native';
 const App = () => {
   useEffect(() => {
     if (Platform.OS == 'android') {
@@ -22,6 +22,7 @@ const App = () => {
 
 
   }, [])
+
   return (
     <>
   <Routes />
