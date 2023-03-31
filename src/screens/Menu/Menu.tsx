@@ -12,4 +12,6 @@ const Menu = ({route}:any) => {
 
 export default Menu
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+
+})

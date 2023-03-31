@@ -6,10 +6,10 @@ import {AppRegistry} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
 import messaging from '@react-native-firebase/messaging';
-import { backgroundEvents } from './src/utils/notifeeServices';
-// Register background handler
+
+//============== Register background handler Background & Quit state messages===============
 messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', remoteMessage);
+    console.log('Message handled in the background! Background & Quit state messages', remoteMessage);
   });
-  backgroundEvents()
+
 AppRegistry.registerComponent(appName, () => App);

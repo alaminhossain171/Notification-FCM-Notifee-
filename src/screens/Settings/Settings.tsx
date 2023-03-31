@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const Settings = () => {
+const Settings = ({route}:any) => {
+  console.log('route is ===>',route.params)
   return (
     <View>
-      <Text>Settings</Text>
+      <Text>Settings {}</Text>
     </View>
   )
 }
