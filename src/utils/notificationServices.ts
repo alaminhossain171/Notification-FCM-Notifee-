@@ -22,49 +22,72 @@ async function getFcmToken() {
     try {
         const token = await messaging().getToken();
         console.log('fcm token ', token)
-    } catch (error) {
-        console.log('error generating token')
+    } catch (error:any) {
+        console.log('error generating token',error)
     }
 }
+
+
+
+
+// async function getFcmToken() {
+//     let fcmToken=await AsyncStorage.getItem('fcmToken');
+//     console.log('old fcm token====>',fcmToken);
+//     if(!fcmToken){
+//         try {
+//             const fcmToken = await messaging().getToken();
+//           if(fcmToken){
+//             console.log('New generated token: ', fcmToken);
+//             await AsyncStorage.setItem('fcmToken',fcmToken);
+//           }
+//         } catch (error) {
+//             console.log('error generating token',error)
+//         }
+//     }
+  
+// }
 //======================= token generate ======================
 
 
-async function onDisplayNotification(data:any) {
-    // Request permissions (required for iOS)
+async function onDisplayNotification(data: any) {
+    try {
+        // Request permissions (required for iOS)
 
-    if (Platform.OS == 'ios') {
-        await notifee.requestPermission()
+        if (Platform.OS == 'ios') {
+            await notifee.requestPermission()
+        }
+
+        // Create a channel (required for Android)
+        const channelId = await notifee.createChannel({
+            id: data?.data?.channel_id,
+            name: data?.data?.channel_name,
+            sound: data?.data?.sound_name,
+            importance: AndroidImportance.HIGH,
+        });
+
+        // Display a notification
+        await notifee.displayNotification({
+            title: data?.notification.title,
+            body: data?.notification.body,
+            android: {
+                channelId,
+
+            },
+        });
+
+    } catch (error) {
+        console.log('error in notifee show message', error)
     }
-
-    // Create a channel (required for Android)
-    const channelId = await notifee.createChannel({
-        id: data?.data?.channel_id,
-        name: data?.data?.channel_name,
-        sound: data?.data?.sound_name,
-        importance: AndroidImportance.HIGH,
-    });
-
-    // Display a notification
-    await notifee.displayNotification({
-        title: data?.notification.title,
-        body: data?.notification.body,
-        android: {
-            channelId,
-
-        },
-    });
-    
 }
-
 
 
 
 
 export async function notificationListner() {
     // Foreground state messages
-  const unsubscribe=  messaging().onMessage(async remoteMessage => {
-        console.log('A new FCM message arrived(Foreground state messages)!', remoteMessage); 
-        // onDisplayNotification(remoteMessage)
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log('A new FCM message arrived(Foreground state messages)!', remoteMessage);
+        onDisplayNotification(remoteMessage)
     });
 
 
@@ -81,17 +104,13 @@ export async function notificationListner() {
                 NavigationService.navigate("Menu", { data: remoteMessage?.data })
             }, 1200)
         }
-        // if (!!remoteMessage?.data && remoteMessage?.data?.redirect_to == "Settings") {
-        //     setTimeout(() => {
-        //         NavigationService.navigate("Settings", { data: remoteMessage?.data })
-        //     }, 1200);
-        // }
+
     });
 
     // Check whether an initial notification is available
     messaging()
         .getInitialNotification()
-        .then(remoteMessage => {  
+        .then(remoteMessage => {
             if (remoteMessage) {
                 console.log(
                     'Notification caused app to open from quit state:',
