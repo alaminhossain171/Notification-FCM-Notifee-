@@ -1,41 +1,104 @@
-//import liraries
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button, Platform } from 'react-native';
-import { cancel, foregroudEvents, onCreateTriggerNotification, onDisplayNotification } from '../../utils/notifeeServices';
+import React from "react";
+import { View, Button, Text, StyleSheet, ImageBackground } from "react-native";
+import notifee, { AndroidImportance } from '@notifee/react-native';
+interface HomeProps {
+  navigation: any;
+}
 
+const Home: React.FC<HomeProps> = ({ navigation }) => {
 
+  async function displayNotifiation() {
+    // Request permissions (required for iOS)
+    await notifee.requestPermission()
 
-// create a component
-const Home = ({ navigation }: any) => {
-React.useEffect(() => {
-foregroudEvents()
-}, [])
+    // Create a channel (required for Android)
+    const channelId = await notifee.createChannel({
+      id: 'simple',
+      name: 'Default Channel',
+      sound: 'default',
+      importance: AndroidImportance.HIGH
+    });
 
+    // Display a notification
+    await notifee.displayNotification({
+      title: 'Notification Title',
+      body: 'Main body content of the notification',
+      android: {
+        channelId,
+        smallIcon: 'ic_launcher', // optional, defaults to 'ic_launcher'.
+        // pressAction is needed if you want the notification to open the app when pressed
+        pressAction: {
+          id: 'default',
+        },
+      },
+    });
+  }
 
-
-
-    return (
-        <View style={styles.container}>
-            <Text>Home Screen</Text>
-            <Button title='Go To Setting' onPress={() => navigation.navigate('Settings')} />
-            <View style={{ marginVertical: 16 }} />
-            <Button title='simple notification' onPress={onDisplayNotification} />
-            <View style={{ marginVertical: 16 }} />
-            <Button title='cancel notification' onPress={()=>cancel('123')} />
-            <View style={{ marginVertical: 16 }} />
-            <Button title='tigger  notification 1 min later' onPress={()=>onCreateTriggerNotification()} />
+  return (
+    <View style={styles.container}>
+      <ImageBackground
+        source={{ uri: "https://img.freepik.com/free-vector/blur-pink-blue-abstract-gradient-background-vector_53876-174836.jpg" }}
+        style={styles.backgroundImage}
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome to the Home Screen</Text>
+          <Text style={styles.paragraph}>
+            Notification implementation tesing
+          </Text>
+          <Button
+            title="Go to Menu Screen"
+            onPress={() => navigation.navigate("Menu")}
+            style={styles.button}
+          />
+          <View style={{ margin: 10 }} />
+          <Button
+            title="Go to Settings Screen"
+            onPress={() => navigation.navigate("Settings")}
+            style={styles.button}
+          />
+          <View style={{ margin: 10 }} />
+          <Button
+            title="Show notification"
+            onPress={() => displayNotifiation()}
+            style={styles.button}
+          />
         </View>
-    );
+      </ImageBackground>
+    </View>
+  );
 };
 
-// define your styles
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'coral'
-    },
+  container: {
+    flex: 1,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 16,
+    borderRadius: 8,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  paragraph: {
+    fontSize: 18,
+    color: "#fff",
+    marginBottom: 32,
+    textAlign: "center",
+  },
+  button: {
+    backgroundColor: "#ff4d4d",
+  },
 });
 
 //make this component available to the app

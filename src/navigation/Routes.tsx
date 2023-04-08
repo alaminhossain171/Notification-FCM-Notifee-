@@ -1,5 +1,5 @@
 // In App.js in a new project
-
+//@ts-nocheck
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -13,7 +13,14 @@ const Stack = createNativeStackNavigator();
 function Routes() {
   return (
     <NavigationContainer ref={(ref) => NavigationService.setTopLevelNavigator(ref)}>
-      <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#9AC4F8",
+          },
+          headerTintColor: "white",
+          headerBackTitle: "Back",
+        }}>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Settings" component={Settings} />
         <Stack.Screen name="Menu" component={Menu} />

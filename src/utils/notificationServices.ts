@@ -1,7 +1,12 @@
+// @ts-nocheck
 import messaging from '@react-native-firebase/messaging';
 import NavigationService from '../navigation/NavigationService';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { Platform } from 'react-native';
+
+
+
+//=================== taking permission from user ======================
 export async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -13,6 +18,9 @@ export async function requestUserPermission() {
         getFcmToken()
     }
 }
+//=================== taking permission from user ======================
+
+
 
 
 async function onDisplayNotification(data) {
@@ -36,13 +44,12 @@ async function onDisplayNotification(data) {
         body: data?.notification.body,
         android: {
             channelId,
-
         },
     });
-    
+
 }
 
-
+//============== token generation for specific device ==============
 
 async function getFcmToken() {
     try {
@@ -52,12 +59,21 @@ async function getFcmToken() {
         console.log('error generating token')
     }
 }
+//============== token generation for specific device ==============
+
+
 
 export async function notificationListner() {
+
+    //===================== Foreground state messages(when user using app open stage)===========================
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-        console.log('A new FCM message arrived!', remoteMessage); 
+        console.log('A new FCM message arrived!', remoteMessage);
+
+        //============= showing notification on notifee ===============
         onDisplayNotification(remoteMessage)
     });
+    //===================== Foreground state messages(when user using app open stage)===========================
+
 
 
     messaging().onNotificationOpenedApp(remoteMessage => {
@@ -65,19 +81,17 @@ export async function notificationListner() {
             'Notification caused app to open from background state:',
             remoteMessage.notification,
         );
-        // setTimeout(() => {
-        //     NavigationService.navigate('Settings')
-        // }, 1200)
-        if (!!remoteMessage?.data && remoteMessage?.data?.redirect_to == "Menu") {
-            setTimeout(() => {
-                NavigationService.navigate("Menu", { data: remoteMessage?.data })
-            }, 1200)
-        }
-        if (!!remoteMessage?.data && remoteMessage?.data?.redirect_to == "Settings") {
-            setTimeout(() => {
-                NavigationService.navigate("Settings", { data: remoteMessage?.data })
-            }, 1200);
-        }
+        setTimeout(() => {
+            NavigationService.navigate('Menu')
+        }, 1200)
+
+        // navigation to  specific screen 
+        // if (!!remoteMessage?.data && remoteMessage?.data?.redirect_to == "Menu") {
+        //     setTimeout(() => {
+        //         NavigationService.navigate("Menu", { data: remoteMessage?.data })
+        //     }, 1200)
+        // }
+
     });
 
     // Check whether an initial notification is available
@@ -93,4 +107,6 @@ export async function notificationListner() {
             }
 
         });
+
+    return unsubscribe;
 }
